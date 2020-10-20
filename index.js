@@ -72,24 +72,50 @@ class Background{
 class Enemy{
     constructor(){
         this.x = canvas.width;
-        this.y = 600;
+        this.y = 0;
         this.width = 70;
         this.height = 100;
         this.image = new Image();
         this.image.src= "https://bit.ly/2BAISL4"
     }
     draw(){
-        this.x -= 2
-       
+        this.y += 2
 
         ctx.drawImage(this.image,this.x,this.y,this.width,this.height)
     }
+}
+
+class Scott{
+    constructor(x=0, y=0, spriteSheet, coinCount) {
+        this.x = x;
+        this.y = y;
+        this.count = 0;
+        this.spriteSheet = new Image();
+        this.spriteSheet.src = spriteSheet;
+        this.coinWidth = Math.floor(this.spriteSheet.width / coinCount);
+        this.coinHeight = this.spriteSheet.height;
+      }
+      
+      update(dt) {
+        if (this.count === 9) {
+          this.count = 0;
+        } else {
+          this.count++;
+        }
+        this.x = this.count * this.coinWidth;
+        this.y = this.coinHeight;
+      }
+      
+      render(context, tFrame) {
+        ctx.drawImage(this.spriteSheet, this.x, 0, this.coinWidth, this.coinHeight, 0, 0, this.coinWidth, this.coinHeight);
+      }
 }
 //para nuestro variables
 
 
 const background = new Background(0,0,canvas.width,canvas.height,"https://bit.ly/2TQwFIY");
 const mario = new Character(100,580,100,120,mariosImages)
+const scott = new Scott(0, 100, "./assets/scott.png", 10);
 //esto es solo de ejemplo para un enemigo
 //const enemy = new Enemy()
 
@@ -102,6 +128,9 @@ updateGame=()=>{
     mario.draw()
     generateEnemies()
     drawEnemies()
+    scott.render()
+    scott.update()
+    
     //esto igual es ejemplo
     //enemy.draw()
     // if(mario.collition(enemy)){
@@ -114,10 +143,6 @@ updateGame=()=>{
     }else{
         requestId =  requestAnimationFrame(updateGame)
     }
-
-    console.log(enemies.length)
-    
-    
 }
 //para inicializar el juego
 startGame = () => {
@@ -132,10 +157,10 @@ gameOver=()=>{
 //Generar Muchos enemigos!!!!
 
 generateEnemies =()=> {
-    if(frames % 100 == 0 || frames % 60 == 0 || frames % 170 == 0){
+    if(frames % 100 == 0 || frames % 80 == 0 ){
         let enemy = new Enemy();
         // enemies.push(enemy)
-        enemies = [...enemies,enemy]
+        enemies = [...enemies,enemy] //spreat operator 
     }
 
 }
@@ -151,7 +176,14 @@ drawEnemies=()=>{
 
 addEventListener("keydown",(event)=>{
     if(event.keyCode === 39) mario.x += 50
-    if(event.keyCode === 37) mario.x -= 50
+    if(event.keyCode === 37) {
+        if(mario.x - mario.width  > canvas.width){ 
+            console.log("oasodasod",)
+            mario.x = 0
+            return false
+        }
+        mario.x -= 50
+    }
     if(event.keyCode === 32) mario.y -= 50
     if(event.keyCode === 13) startGame()
 })
